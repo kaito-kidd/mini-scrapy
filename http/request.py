@@ -11,10 +11,7 @@ class Request(object):
         self.url = url
         self.method = method
         self.callback = callback
-        if headers is None:
-            self.headers = {}
-        else:
-            self.headers = headers
+        self.headers = headers or {}
 
     def __str__(self):
         return "<%s %s>" % (self.method, self.url)

@@ -10,10 +10,7 @@ class Response(object):
     def __init__(self, url, status=200, headers=None, request=None):
         self.url = url
         self.status = status
-        if headers is None:
-            self.headers = {}
-        else:
-            self.headers = headers
+        self.headers = headers or {}
         self.request = request
 
     def __str__(self):
