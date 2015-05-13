@@ -29,6 +29,11 @@ class Spider(object):
         for url in self.start_urls:
             yield Request(url)
 
+    def start(self):
+        """start
+        """
+        pass
+
     def parse(self):
         """ parse """
         raise NotImplementedError
