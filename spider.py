@@ -10,7 +10,6 @@ class Spider(object):
 
     """ Base Spider"""
 
-    start_urls = []
     custom_settings = None
 
     def __init__(self):

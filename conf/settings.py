@@ -47,14 +47,6 @@ class Settings(object):
             if key.isupper():
                 self.set(key, getattr(module, key))
 
-    def set_dict(self, values):
-        """set dict
-
-        @values, dict, values
-        """
-        for key, value in values.iteritems():
-            self.set(key, value)
-
     def set(self, key, value):
         """set
 
@@ -62,6 +54,14 @@ class Settings(object):
         @value, str/int/float value
         """
         self.attrs[name] = Attribute(value)
+
+    def set_dict(self, values):
+        """set dict
+
+        @values, dict, values
+        """
+        for key, value in values.iteritems():
+            self.set(key, value)
 
     def get(self, key, default=None):
         """get
