@@ -2,6 +2,7 @@
 
 """ Base Spider"""
 
+from .conf.settings import Settings
 from .http.request import Request
 
 
@@ -15,6 +16,9 @@ class Spider(object):
     def __init__(self):
         if not hasattr(self, "start_urls"):
             self.start_urls = []
+        # init settings
+        self.settings = Settings(self.custom_settings)
+
         self.initialize()
 
     def initialize(self):
