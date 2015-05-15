@@ -2,8 +2,11 @@
 
 """ Engine """
 
+import logging
+
 from scheduler import Scheduler
 from downloader import Downloader
+from reactor import CallOnce
 
 
 class Engine(object):
@@ -23,4 +26,50 @@ class Engine(object):
 
     def execute(self, spider, start_requests):
         """ execute """
+        self.start_requests = start_requests
+        self.nextcall = CallOnce(self._next_request, spider)
+        self.nextcall.schedule()
+
+    def _next_request(self, spider):
+        """ _next_request """
+        while 1:
+            if not self._get_and_process_request(spider):
+                break
+
+        if self.start_requests:
+            try:
+                req = next(self.start_requests)
+            except StopIteration:
+                self.start_requests = None
+            else:
+                self.crawl(req)
+
+    def _get_and_process_request(self, spider):
+        """get and process request
+        """
+        request = self.scheduler.next_request()
+        if not request:
+            return None
+        try:
+            response = self.download(request, spider)
+        except:
+            logging.info("")
+        else:
+            self._handle_downloader_output(response, request, spider)
+
+    def download(self, request, spider):
+        """ download
+        """
+        response = self.downloader.fetch(request, spider)
+        response.request = request
+        self.nextcall.schedule()
+        return response
+
+    def _handle_downloader_output(self, response, request, spider):
         pass
+
+    def crawl(self, request):
+        """ crawl
+        """
+        self.scheduler.enqueue_request(request)
+        self.nextcall.schedule()

@@ -2,7 +2,7 @@
 
 """ 工具 """
 
-def call_func(func, errback, callback, *args, **kwargs):
+def call_func(func, errback=None, callback=None, *args, **kwargs):
     """执行某个函数,并自动包装异常和回调
 
     @func, function, 待执行的函数
@@ -14,6 +14,9 @@ def call_func(func, errback, callback, *args, **kwargs):
     try:
         result = func(*args, **kwargs)
     except Exception as exc:
-        errback(exc)
+        if errback:
+            errback(exc)
     else:
-        return callback(result)
+        if callback:
+            result = callback(result)
+    return result
