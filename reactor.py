@@ -2,8 +2,7 @@
 
 """ reactory """
 
-import gevent
-
+from .utils import spawn
 
 class CallOnce(object):
 
@@ -19,8 +18,7 @@ class CallOnce(object):
         """schedule
         """
         if self.call is None:
-            self.call = gevent.spawn(self)
-            gevent.joinall([self.call])
+            self.call = spawn(self)
 
     def __call__(self):
         self.call = None

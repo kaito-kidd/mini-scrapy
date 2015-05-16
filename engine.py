@@ -7,6 +7,7 @@ import logging
 from scheduler import Scheduler
 from downloader import Downloader
 from reactor import CallOnce
+from utils import spawn, join_all
 
 
 class Engine(object):
@@ -18,6 +19,7 @@ class Engine(object):
         self.downloader = Downloader()
         self.spider = spider
         self.settings = spider.settings
+        self.funcs = []
 
     def start(self):
         """ start """
@@ -28,7 +30,8 @@ class Engine(object):
         """ execute """
         self.start_requests = start_requests
         self.nextcall = CallOnce(self._next_request, spider)
-        self.nextcall.schedule()
+        self.funcs.append(spawn(self.nextcall.schedule))
+        join_all(self.funcs)
 
     def _next_request(self, spider):
         """ _next_request """

@@ -1,5 +1,7 @@
 # coding: utf8
 
+import gevent
+
 """ 工具 """
 
 def call_func(func, errback=None, callback=None, *args, **kwargs):
@@ -20,3 +22,15 @@ def call_func(func, errback=None, callback=None, *args, **kwargs):
         if callback:
             result = callback(result)
     return result
+
+
+def spawn(func, *args, **kwargs):
+    """ spawn
+    """
+    return gevent.spawn(func, *args, **kwargs)
+
+
+def join_all(funcs):
+    """join all
+    """
+    gevent.joinall(funcs)
