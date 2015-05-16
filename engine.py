@@ -59,6 +59,7 @@ class Engine(object):
             logging.info("")
         else:
             self._handle_downloader_output(response, request, spider)
+            return response
 
     def download(self, request, spider):
         """ download
