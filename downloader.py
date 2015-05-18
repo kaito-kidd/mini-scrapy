@@ -2,30 +2,63 @@
 
 """ Downloader """
 
+from urlparse import urlparse
+
 import requests
 
 
-class DownloaderHandler(object):
+class DownloadHandler(object):
 
-    """ DownloaderHandler """
+    """ DownloadHandler """
 
-    def __init__(self):
-        self.session = requests.Session()
+    def __init__(self, spider, keep_alive=True, **kwargs):
+        self.keep_alive = keep_alive
+        self.settings = spider.settings
+        self.session_map = {}
+        self.kwargs = kwargs
 
-    def fetch_request(self, url):
-        self.session.get(url)
+    def _get_session(self, url):
+        """get session
+
+        @url, str, url
+        """
+        if url not in self.session_map:
+            self.session_map[urlparse(url).netloc] = requests.Session()
+        return self.session_map[url]
+
+    def fetch(self, url):
+        """fetch
+        """
+        kwargs = {
+            "headers": self.settings["DEFAULT_HEADERS"],
+            "timeout": self.settings["TIMEOUT"]
+        }
+        kwargs.update(self.kwargs)
+        session = self._get_session(url)
+        respoonse = session.get(url, kwargs=kwargs)
+        return respoonse
 
 
 class Downloader(object):
 
     """ Downloader """
 
-    def __init__(self):
-        pass
+    def __init__(self, spider):
+        self.hanlder = DownloadHandler(spider)
+        self.max_request_size = spider.settinsg["MAX_REQUEST_SIZE"]
+        self.middleware = DownloaderMiddlewareManager(spider)
 
     def fetch(self, request, spider):
         """fetch
 
         @request, Request, 请求
         """
-        pass
+        return self.hanlder.fetch(request.url)
+
+
+class DownloaderMiddlewareManager(object):
+
+    """ DownloaderMiddlewareManager """
+
+    def __init__(self, spider):
+        self.settinsg = spider.settings

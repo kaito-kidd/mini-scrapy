@@ -8,6 +8,7 @@ from scheduler import Scheduler
 from downloader import Downloader
 from reactor import CallOnce
 from utils import spawn, join_all
+from http.request import Request
 
 
 class Engine(object):
@@ -15,9 +16,9 @@ class Engine(object):
     """ Engine """
 
     def __init__(self, spider):
-        self.scheduler = Scheduler()
-        self.downloader = Downloader()
         self.spider = spider
+        self.scheduler = Scheduler()
+        self.downloader = Downloader(spider)
         self.settings = spider.settings
         self.funcs = []
 
@@ -55,8 +56,8 @@ class Engine(object):
             return None
         try:
             response = self.download(request, spider)
-        except:
-            logging.info("")
+        except Exception as exc:
+            logging.error("download error: %s", str(exc), exc_info=True)
         else:
             self._handle_downloader_output(response, request, spider)
             return response
@@ -70,7 +71,11 @@ class Engine(object):
         return response
 
     def _handle_downloader_output(self, response, request, spider):
-        pass
+        """hanlde downloader output
+        """
+        if isinstance(response, Request):
+            self.crawl(response)
+            return
 
     def crawl(self, request):
         """ crawl
