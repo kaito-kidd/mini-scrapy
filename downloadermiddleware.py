@@ -26,9 +26,8 @@ class DownloaderMiddlewareManager(object):
         """load middleware
         """
         middlewares = []
-        for obj in globals().values():
-            if iter_classes(obj, DownloaderMiddleware):
-                middlewares.append(obj(self.settings))
+        for mw in iter_classes(globals().values(), DownloaderMiddleware):
+            middlewares.append(mw(self.settings))
 
     def _add_middleware(self, mw):
         """add middleware
