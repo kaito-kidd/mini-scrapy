@@ -45,7 +45,6 @@ class Downloader(object):
 
     def __init__(self, spider):
         self.hanlder = DownloadHandler(spider)
-        self.max_request_size = spider.settinsg["MAX_REQUEST_SIZE"]
         self.middleware = DownloaderMiddlewareManager(spider)
 
     def fetch(self, request, spider):
@@ -53,12 +52,5 @@ class Downloader(object):
 
         @request, Request, 请求
         """
+        self.middleware.download(request)
         return self.hanlder.fetch(request.url)
-
-
-class DownloaderMiddlewareManager(object):
-
-    """ DownloaderMiddlewareManager """
-
-    def __init__(self, spider):
-        self.settinsg = spider.settings

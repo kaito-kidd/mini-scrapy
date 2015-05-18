@@ -1,6 +1,10 @@
 # coding: utf8
 
+import inspect
+
 import gevent
+
+from importlib import import_module
 
 """ 工具 """
 
@@ -34,3 +38,11 @@ def join_all(funcs):
     """join all
     """
     gevent.joinall(funcs)
+
+
+def iter_classes(obj, clazz):
+    """iter classes
+    """
+    if inspect.isclass(obj) and issubclass(obj, clazz):
+        return True
+    return False

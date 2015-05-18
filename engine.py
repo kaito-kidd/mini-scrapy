@@ -4,6 +4,8 @@
 
 import logging
 
+from gevent.pool import Pool
+
 from scheduler import Scheduler
 from downloader import Downloader
 from reactor import CallOnce
@@ -20,7 +22,8 @@ class Engine(object):
         self.scheduler = Scheduler()
         self.downloader = Downloader(spider)
         self.settings = spider.settings
-        self.funcs = []
+        max_request_size = self.settings["MAX_REQUEST_SIZE"]
+        self.pool = Pool(size=max_request_size)
 
     def start(self):
         """ start """
@@ -31,13 +34,14 @@ class Engine(object):
         """ execute """
         self.start_requests = start_requests
         self.nextcall = CallOnce(self._next_request, spider)
-        self.funcs.append(spawn(self.nextcall.schedule))
-        join_all(self.funcs)
+        join_all([spawn(self.nextcall.schedule)])
 
     def _next_request(self, spider):
         """ _next_request """
         while 1:
-            if not self._get_and_process_request(spider):
+            greenlet = self.pool.spawn(
+                self._get_and_process_request, spider)
+            if not greenlet.value:
                 break
 
         if self.start_requests:
