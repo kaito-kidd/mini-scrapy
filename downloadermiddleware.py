@@ -4,12 +4,15 @@
 
 from collections import defaultdict
 
+from utils import iter_classes
+
 
 class DownloaderMiddleware(object):
 
     """ DownloaderMiddleware iterface """
 
     pass
+
 
 class DownloaderMiddlewareManager(object):
 
@@ -19,25 +22,25 @@ class DownloaderMiddlewareManager(object):
         self.settings = spider.settings
         self.methods = defaultdict(list)
         self.middlewares = self.load_middleware()
-        for mw in self.middlewares:
-            self._add_middleware(mw)
+        for miw in self.middlewares:
+            self._add_middleware(miw)
 
     def load_middleware(self):
         """load middleware
         """
         middlewares = []
-        for mw in iter_classes(globals().values(), DownloaderMiddleware):
-            middlewares.append(mw(self.settings))
+        for miw in iter_classes(globals().values(), DownloaderMiddleware):
+            middlewares.append(miw(self.settings))
 
-    def _add_middleware(self, mw):
+    def _add_middleware(self, miw):
         """add middleware
         """
-        if hasattr(mw, "process_request"):
-            self.methods["process_request"].append(mw.process_request)
-        if hasattr(mw, "process_response"):
-            self.methods["process_response"].insert(0, mw.process_response)
-        if hasattr(mw, "process_exception"):
-            self.methods["process_exception"].insert(0, mw.process_exception)
+        if hasattr(miw, "process_request"):
+            self.methods["process_request"].append(miw.process_request)
+        if hasattr(miw, "process_response"):
+            self.methods["process_response"].insert(0, miw.process_response)
+        if hasattr(miw, "process_exception"):
+            self.methods["process_exception"].insert(0, miw.process_exception)
 
     def download(self, request):
         """download
@@ -56,20 +59,22 @@ class RetryMiddleware(DownloaderMiddleware):
         self.retry_status_codes = settings.get_list("RETRY_STATUS_CODES")
 
     def process_response(self, request, respoonse):
-        """process respoonse"""
+        """process respoonse
+        """
         if request.meta.get("dont_retry", False):
             return respoonse
         if respoonse.status in self.retry_status_codes:
-            return self._retry(request, respoonse) or respoonse
+            return self._retry(request) or respoonse
         return respoonse
 
     def process_exception(self, request, exception):
-        """process exception"""
-        if isinstance(exception, RETRY_EXCEPTIONS) \
+        """process exception
+        """
+        if isinstance(exception, self.RETRY_EXCEPTIONS) \
                 and request.meta.get("dont_retry", False):
-            return self._retry(request, respoonse)
+            return self._retry(request)
 
-    def _retry(self, request, respoonse):
+    def _retry(self, request):
         """retry
         """
         retry_count = request.meta.get("retry_count", 0) + 1
