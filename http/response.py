@@ -13,6 +13,13 @@ class Response(object):
         self.headers = headers or {}
         self.request = request
 
+    def copy(self, *args, **kwargs):
+        """ copy """
+        for key in ["url", "status", "headers", "request"]:
+            kwargs.setdefault(key, getattr(self, key))
+        cls = kwargs.pop('cls', self.__class__)
+        return cls(*args, **kwargs)
+
     def __str__(self):
         return "<%d %s>" % (self.status, self.url)
 

@@ -40,8 +40,8 @@ def join_all(funcs):
     gevent.joinall(funcs)
 
 
-def iter_classes(values, clazz):
-    """iter classes
+def iter_children_classes(values, clazz):
+    """iter children classes
     """
     for obj in values:
         if inspect.isclass(obj) and issubclass(obj, clazz):

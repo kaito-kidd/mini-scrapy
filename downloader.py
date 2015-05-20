@@ -6,6 +6,8 @@ from urlparse import urlparse
 
 import requests
 
+from downloadermiddleware import DownloaderMiddlewareManager
+
 
 class DownloadHandler(object):
 
@@ -52,5 +54,9 @@ class Downloader(object):
 
         @request, Request, 请求
         """
-        self.middleware.download(request)
+        self.middleware.download(self._download, request)
+
+    def _download(self, request):
+        """download
+        """
         return self.hanlder.fetch(request.url)

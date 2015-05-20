@@ -4,7 +4,9 @@
 
 from collections import defaultdict
 
-from utils import iter_classes
+from utils import iter_children_classes, call_func
+
+from http.request import Request
 
 
 class DownloaderMiddleware(object):
@@ -29,7 +31,8 @@ class DownloaderMiddlewareManager(object):
         """load middleware
         """
         middlewares = []
-        for miw in iter_classes(globals().values(), DownloaderMiddleware):
+        for miw in iter_children_classes(
+                globals().values(), DownloaderMiddleware):
             middlewares.append(miw(self.settings))
 
     def _add_middleware(self, miw):
@@ -42,10 +45,33 @@ class DownloaderMiddlewareManager(object):
         if hasattr(miw, "process_exception"):
             self.methods["process_exception"].insert(0, miw.process_exception)
 
-    def download(self, request):
+    def download(self, download_func, request):
         """download
         """
-        pass
+        def process_request(request):
+            """ process request """
+            for method in self.methods["process_request"]:
+                method(request)
+            download_func(request)
+
+        def process_response(response):
+            """ process response """
+            for method in self.methods["process_response"]:
+                response = method(request)
+                if isinstance(response, Request):
+                    return response
+            return response
+
+        def process_exception(exception):
+            """ process exception """
+            for method in self.methods["process_exception"]:
+                response = method(request, exception)
+                if response:
+                    return response
+            return exception
+
+        return call_func(process_request, process_exception,
+                         process_response, request)
 
 
 class RetryMiddleware(DownloaderMiddleware):
