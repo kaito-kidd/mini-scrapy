@@ -81,6 +81,14 @@ class Engine(object):
             self.crawl(response)
             return
 
+        # 处理下载后的数据
+        self.process_response(response, request, spider)
+
+    def process_response(self, response, request, spider):
+        """process response
+        """
+        pass
+
     def crawl(self, request):
         """ crawl
         """

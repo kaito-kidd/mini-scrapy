@@ -52,7 +52,7 @@ class DownloaderMiddlewareManager(object):
             """ process request """
             for method in self.methods["process_request"]:
                 method(request)
-            download_func(request)
+            return download_func(request)
 
         def process_response(response):
             """ process response """

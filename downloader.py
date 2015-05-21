@@ -6,6 +6,7 @@ from urlparse import urlparse
 
 import requests
 
+from http.response import Response
 from downloadermiddleware import DownloaderMiddlewareManager
 
 
@@ -24,9 +25,11 @@ class DownloadHandler(object):
 
         @url, str, url
         """
-        if url not in self.session_map:
-            self.session_map[urlparse(url).netloc] = requests.Session()
-        return self.session_map[url]
+        if self.keep_alive:
+            if url not in self.session_map:
+                self.session_map[urlparse(url).netloc] = requests.Session()
+            return self.session_map[url]
+        return requests.Session()
 
     def fetch(self, url):
         """fetch
@@ -37,8 +40,9 @@ class DownloadHandler(object):
         }
         kwargs.update(self.kwargs)
         session = self._get_session(url)
-        respoonse = session.get(url, kwargs=kwargs)
-        return respoonse
+        response = session.get(url, kwargs=kwargs)
+        return Response(response.url, response.status_code,
+                        response.headers, response.content)
 
 
 class Downloader(object):
