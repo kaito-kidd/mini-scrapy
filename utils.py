@@ -46,3 +46,14 @@ def iter_children_classes(values, clazz):
     for obj in values:
         if inspect.isclass(obj) and issubclass(obj, clazz):
             yield obj
+
+
+def result2list(result):
+    """result to list
+    """
+    if result is None:
+        return []
+    if hasattr(result, "__iter__"):
+        return result
+    if isinstance(result, (dict, basestring)):
+        return [result]

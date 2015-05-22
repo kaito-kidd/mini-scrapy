@@ -37,5 +37,11 @@ class Spider(object):
         engine.start()
 
     def parse(self):
-        """ parse """
+        """parse
+        """
         raise NotImplementedError
+
+    def process_item(self, item):
+        """process item
+        """
+        pass

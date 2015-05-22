@@ -9,7 +9,7 @@ from gevent.pool import Pool
 from scheduler import Scheduler
 from downloader import Downloader
 from reactor import CallOnce
-from utils import spawn, join_all
+from utils import spawn, join_all, result2list
 from http.request import Request
 
 
@@ -86,6 +86,27 @@ class Engine(object):
 
     def process_response(self, response, request, spider):
         """process response
+        """
+        callback = request.callback or spider.parse
+        result = callback(response)
+        ret = result2list(result)
+        return self.handle_spider_output(ret)
+
+    def handle_spider_output(self, result):
+        """handle spider output
+        """
+        for item in result:
+            if isinstance(item, Request):
+                self.crawl(item)
+            elif isinstance(item, dict):
+                self.process_item(item)
+            elif item is None:
+                pass
+            else:
+                logging.warn("Spider must retrun Request, dict or None")
+
+    def process_item(self, item):
+        """handle item
         """
         pass
 
