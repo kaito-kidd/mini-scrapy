@@ -22,11 +22,13 @@ class Spider(object):
         self.initialize()
 
     def initialize(self):
-        """ initialize """
+        """initialize
+        """
         pass
 
     def start_requests(self):
-        """ start_requests """
+        """start_requests
+        """
         for url in self.start_urls:
             yield Request(url)
 

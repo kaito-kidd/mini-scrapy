@@ -90,25 +90,25 @@ class Engine(object):
         callback = request.callback or spider.parse
         result = callback(response)
         ret = result2list(result)
-        return self.handle_spider_output(ret)
+        return self.handle_spider_output(ret, spider)
 
-    def handle_spider_output(self, result):
+    def handle_spider_output(self, result, spider):
         """handle spider output
         """
         for item in result:
-            if isinstance(item, Request):
+            if item is None:
+                continue
+            elif isinstance(item, Request):
                 self.crawl(item)
             elif isinstance(item, dict):
-                self.process_item(item)
-            elif item is None:
-                pass
+                self.process_item(item, spider)
             else:
-                logging.warn("Spider must retrun Request, dict or None")
+                logging.error("Spider must retrun Request, dict or None")
 
-    def process_item(self, item):
+    def process_item(self, item, spider):
         """handle item
         """
-        pass
+        spider.process_item(item)
 
     def crawl(self, request):
         """ crawl
