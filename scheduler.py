@@ -13,11 +13,13 @@ class Scheduler(object):
         self.queue = Queue()
 
     def enqueue_request(self, request):
-        """ put request"""
+        """put request
+        """
         self.queue.put(request)
 
     def next_request(self):
-        """ next request"""
+        """next request
+        """
         if self.queue.empty():
             return None
         return self.queue.get()

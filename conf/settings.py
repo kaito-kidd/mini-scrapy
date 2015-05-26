@@ -4,7 +4,10 @@
 
 import json
 
+from importlib import import_module
+
 from . import default_settings
+
 
 class Attribute(object):
 
@@ -53,7 +56,7 @@ class Settings(object):
         @key, str, key
         @value, str/int/float value
         """
-        self.attrs[name] = Attribute(value)
+        self.attrs[key] = Attribute(value)
 
     def set_dict(self, values):
         """set dict
@@ -69,7 +72,7 @@ class Settings(object):
         @key, str, key
         @default, default
         """
-        return self[name] or default
+        return self[key] or default
 
     def get_int(self, key, default=0):
         """get int

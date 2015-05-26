@@ -2,7 +2,7 @@
 
 """ reactory """
 
-from .utils import spawn
+from utils import spawn
 
 class CallOnce(object):
 

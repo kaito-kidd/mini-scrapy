@@ -26,18 +26,21 @@ class Engine(object):
         self.pool = Pool(size=max_request_size)
 
     def start(self):
-        """ start """
+        """start
+        """
         start_requests = iter(self.spider.start_requests())
         self.execute(self.spider, start_requests)
 
     def execute(self, spider, start_requests):
-        """ execute """
+        """execute
+        """
         self.start_requests = start_requests
         self.nextcall = CallOnce(self._next_request, spider)
         join_all([spawn(self.nextcall.schedule)])
 
     def _next_request(self, spider):
-        """ _next_request """
+        """_next_request
+        """
         while 1:
             greenlet = self.pool.spawn(
                 self._get_and_process_request, spider)
@@ -111,7 +114,7 @@ class Engine(object):
         spider.process_item(item)
 
     def crawl(self, request):
-        """ crawl
+        """crawl
         """
         self.scheduler.enqueue_request(request)
         self.nextcall.schedule()

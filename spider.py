@@ -2,9 +2,9 @@
 
 """ Base Spider"""
 
-from .conf.settings import Settings
-from .http.request import Request
-from .engine import Engine
+from conf.settings import Settings
+from http.request import Request
+from engine import Engine
 
 
 class Spider(object):
