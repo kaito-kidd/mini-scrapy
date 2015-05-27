@@ -2,7 +2,6 @@
 
 """ reactory """
 
-from utils import spawn
 
 class CallOnce(object):
 
@@ -18,7 +17,7 @@ class CallOnce(object):
         """schedule
         """
         if self.call is None:
-            self.call = spawn(self)
+            self.call = self()
 
     def __call__(self):
         self.call = None

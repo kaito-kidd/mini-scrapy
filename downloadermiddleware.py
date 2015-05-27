@@ -34,6 +34,7 @@ class DownloaderMiddlewareManager(object):
         for miw in iter_children_classes(
                 globals().values(), DownloaderMiddleware):
             middlewares.append(miw(self.settings))
+        return middlewares
 
     def _add_middleware(self, miw):
         """add middleware
@@ -57,7 +58,7 @@ class DownloaderMiddlewareManager(object):
         def process_response(response):
             """ process response """
             for method in self.methods["process_response"]:
-                response = method(request)
+                response = method(request, response)
                 if isinstance(response, Request):
                     return response
             return response

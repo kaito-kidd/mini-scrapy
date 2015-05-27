@@ -93,7 +93,7 @@ class Engine(object):
         callback = request.callback or spider.parse
         result = callback(response)
         ret = result2list(result)
-        return self.handle_spider_output(ret, spider)
+        self.handle_spider_output(ret, spider)
 
     def handle_spider_output(self, result, spider):
         """handle spider output

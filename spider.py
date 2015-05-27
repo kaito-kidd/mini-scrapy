@@ -38,7 +38,7 @@ class Spider(object):
         engine = Engine(self)
         engine.start()
 
-    def parse(self):
+    def parse(self, response):
         """parse
         """
         raise NotImplementedError

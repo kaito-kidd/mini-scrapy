@@ -1,12 +1,27 @@
 # coding: utf8
 
+""" 工具 """
+
 import inspect
+import logging
 
 import gevent
 
-from importlib import import_module
 
-""" 工具 """
+def get_logger(name):
+    """创建一个logger
+    """
+    default_logger = logging.getLogger(name)
+    default_logger.setLevel(logging.DEBUG)
+    stream = logging.StreamHandler()
+    stream.setLevel(logging.DEBUG)
+    formatter = logging.Formatter("[%(levelname)s] %(asctime)s - %(message)s")
+    stream.setFormatter(formatter)
+    default_logger.addHandler(stream)
+    return default_logger
+
+logger = get_logger("mylogger")
+
 
 def call_func(func, errback=None, callback=None, *args, **kwargs):
     """执行某个函数,并自动包装异常和回调
@@ -44,7 +59,8 @@ def iter_children_classes(values, clazz):
     """iter children classes
     """
     for obj in values:
-        if inspect.isclass(obj) and issubclass(obj, clazz):
+        if inspect.isclass(obj) and issubclass(obj, clazz) \
+                and obj is not clazz:
             yield obj
 
 
@@ -53,7 +69,7 @@ def result2list(result):
     """
     if result is None:
         return []
-    if hasattr(result, "__iter__"):
-        return result
     if isinstance(result, (dict, basestring)):
         return [result]
+    if hasattr(result, "__iter__"):
+        return result
