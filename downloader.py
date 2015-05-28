@@ -33,14 +33,15 @@ class DownloadHandler(object):
             return self.session_map[netloc]
         return requests.Session()
 
-    def fetch(self, url):
+    def fetch(self, request):
         """fetch
         """
         kwargs = {
-            "headers": self.settings["DEFAULT_HEADERS"],
+            "headers": request.headers,
             "timeout": self.settings["TIMEOUT"]
         }
         kwargs.update(self.kwargs)
+        url = request.url
         session = self._get_session(url)
         logger.info("processing %s", url)
         response = session.get(url, **kwargs)
@@ -66,4 +67,4 @@ class Downloader(object):
     def _download(self, request):
         """download
         """
-        return self.hanlder.fetch(request.url)
+        return self.hanlder.fetch(request)

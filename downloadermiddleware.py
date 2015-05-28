@@ -2,6 +2,8 @@
 
 """Dowloader Midlleware"""
 
+import random
+
 from collections import defaultdict
 
 from utils import iter_children_classes, call_func
@@ -109,3 +111,16 @@ class RetryMiddleware(DownloaderMiddleware):
             retry_request = request.copy()
             retry_request.meta["retry_count"] = retry_count
             return retry_request
+
+
+class UserAgentMiddleware(DownloaderMiddleware):
+
+    """ UserAgent Middleware """
+
+    def __init__(self, settings):
+        self.user_agent_list = settings.get_list("USER_AGENT_LIST")
+
+    def process_request(self, request):
+        """process request
+        """
+        request.headers["User-Agent"] = random.choice(self.user_agent_list)
