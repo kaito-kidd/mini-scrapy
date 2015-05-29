@@ -4,11 +4,11 @@
 
 import logging
 
+import gevent
 from gevent.pool import Pool
 
 from scheduler import Scheduler
 from downloader import Downloader
-from reactor import CallOnce
 from utils import spawn, join_all, result2list
 from http.request import Request
 
@@ -35,32 +35,31 @@ class Engine(object):
         """execute
         """
         self.start_requests = start_requests
-        self.nextcall = CallOnce(self._next_request, spider)
-        join_all([spawn(self.nextcall.schedule)])
+        all_routines = []
+        all_routines.append(spawn(self._init_start_requests))
+        all_routines.append(spawn(self._next_request, spider))
+        join_all(all_routines)
+
+    def _init_start_requests(self):
+        """init start requests
+        """
+        for req in self.start_requests:
+            self.crawl(req)
 
     def _next_request(self, spider):
-        """_next_request
+        """next request
         """
         while 1:
-            greenlet = self.pool.spawn(
-                self._get_and_process_request, spider)
-            if not greenlet.value:
-                break
+            request = self.scheduler.next_request()
+            if not request:
+                gevent.sleep(0.2)
+                continue
+            self.pool.spawn(
+                self._process_request, request, spider)
 
-        if self.start_requests:
-            try:
-                req = next(self.start_requests)
-            except StopIteration:
-                self.start_requests = None
-            else:
-                self.crawl(req)
-
-    def _get_and_process_request(self, spider):
-        """get and process request
+    def _process_request(self, request, spider):
+        """process request
         """
-        request = self.scheduler.next_request()
-        if not request:
-            return None
         try:
             response = self.download(request, spider)
         except Exception as exc:
@@ -74,7 +73,6 @@ class Engine(object):
         """
         response = self.downloader.fetch(request, spider)
         response.request = request
-        self.nextcall.schedule()
         return response
 
     def _handle_downloader_output(self, response, request, spider):
@@ -117,4 +115,3 @@ class Engine(object):
         """crawl
         """
         self.scheduler.enqueue_request(request)
-        self.nextcall.schedule()
