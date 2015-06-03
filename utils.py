@@ -4,6 +4,10 @@
 
 import inspect
 import logging
+import urllib
+import hashlib
+
+from urlparse import urlparse, parse_qsl, urlunparse
 
 import gevent
 
@@ -73,3 +77,17 @@ def result2list(result):
         return [result]
     if hasattr(result, "__iter__"):
         return result
+
+
+def request_fingerprint(request):
+    """request fingerprint
+    """
+    scheme, netloc, path, params, query, fragment = urlparse(request.url)
+    keyvals = parse_qsl(query)
+    keyvals.sort()
+    query = urllib.urlencode(keyvals)
+    canonicalize_url = urlunparse((
+        scheme, netloc.lower(), path, params, query, fragment))
+    fpr = hashlib.sha1()
+    fpr.update(canonicalize_url)
+    return fpr.hexdigest()

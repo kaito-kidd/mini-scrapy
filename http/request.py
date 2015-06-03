@@ -8,11 +8,12 @@ class Request(object):
     """ Request """
 
     def __init__(self, url, method="GET", callback=None,
-                 headers=None, meta=None):
+                 headers=None, dont_filter=False, meta=None):
         self.url = url
         self.method = method
         self.callback = callback
         self.headers = headers or {}
+        self.dont_filter = dont_filter
         self.meta = meta if meta else {}
 
     def copy(self, *args, **kwargs):
