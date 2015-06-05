@@ -5,9 +5,11 @@
 import random
 
 from collections import defaultdict
+from urlparse import urlparse
+
+import chardet
 
 from utils import iter_children_classes, call_func
-
 from http.request import Request
 
 
@@ -124,3 +126,27 @@ class UserAgentMiddleware(DownloaderMiddleware):
         """process request
         """
         request.headers["User-Agent"] = random.choice(self.user_agent_list)
+
+
+class EncodingDiscriminateMiddleware(DownloaderMiddleware):
+
+    """ Encoding Discriminate Middleware """
+
+    ENCODING_MAP = {}
+
+    def __init__(self, settings):
+        self.settings = settings
+
+    def process_response(self, request, respoonse):
+        """process respoonse
+        """
+        netloc = urlparse(request.url).netloc
+        content = respoonse.body
+        if self.ENCODING_MAP.get(netloc) is None:
+            # 自动识别编码
+            encoding = chardet.detect(content)["encoding"]
+            encoding = "GB18030" \
+                if encoding.upper() in ("GBK", "GB2312") else encoding
+            self.ENCODING_MAP[netloc] = encoding
+        body = content.decode(self.ENCODING_MAP[netloc], "replace")
+        return respoonse.copy(body=body)
