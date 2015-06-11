@@ -36,10 +36,14 @@ class DownloadHandler(object):
     def fetch(self, request):
         """fetch
         """
+        proxy = request.meta.get("proxy")
         kwargs = {
             "headers": request.headers,
-            "timeout": self.settings["TIMEOUT"]
+            "timeout": self.settings["TIMEOUT"],
         }
+        if proxy:
+            kwargs["proxies"] = {"http:": proxy}
+            logger.info("user proxy %s", proxy)
         kwargs.update(self.kwargs)
         url = request.url
         session = self._get_session(url)

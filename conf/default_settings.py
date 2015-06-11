@@ -18,6 +18,9 @@ PROXY_ENABLED = False
 
 MAX_REQUEST_SIZE = 30
 
+PROXY_FILE = "proxy_list.txt"
+PROXY_INTERVAL = 5
+
 USER_AGENT_LIST = [
     'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31',
     'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.60 Safari/537.17',

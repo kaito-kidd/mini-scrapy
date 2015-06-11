@@ -2,14 +2,16 @@
 
 """Dowloader Midlleware"""
 
+import time
 import random
 
 from collections import defaultdict
 from urlparse import urlparse
 
+import gevent
 import chardet
 
-from utils import iter_children_classes, call_func
+from utils import iter_children_classes, call_func, logger
 from http.request import Request
 
 
@@ -126,6 +128,36 @@ class UserAgentMiddleware(DownloaderMiddleware):
         """process request
         """
         request.headers["User-Agent"] = random.choice(self.user_agent_list)
+
+
+class ProxyMiddleware(DownloaderMiddleware):
+
+    """ Proxy Middleware """
+
+    def __init__(self, settings):
+        self.host_time_map = {}
+        self.proxy_interval = settings["PROXY_INTERVAL"]
+        self.proxy_file = settings["PROXY_FILE"]
+        with open(self.proxy_file) as fip:
+            self.proxy_list = fip.readlines()
+
+    def process_request(self, request):
+        """process request
+        """
+        request.meta["proxy"] = self._get_proxy()
+
+    def _get_proxy(self):
+        """get proxy
+        """
+        proxy = random.choice(self.proxy_list).strip()
+        host, _ = proxy.split(":")
+        latest = self.host_time_map.get(host, 0)
+        interval = time.time() - latest
+        if interval < self.proxy_interval:
+            logger.info("%s waitting ...", proxy)
+            gevent.sleep(self.proxy_interval)
+        self.host_time_map[host] = time.time()
+        return "http://%s" % proxy
 
 
 class EncodingDiscriminateMiddleware(DownloaderMiddleware):
