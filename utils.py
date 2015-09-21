@@ -44,7 +44,7 @@ def call_func(func, errback=None, callback=None, *args, **kwargs):
     else:
         if callback:
             result = callback(result)
-    return result
+        return result
 
 
 def spawn(func, *args, **kwargs):
